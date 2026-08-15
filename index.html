@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Conversor TRM — Dólar a peso colombiano</title>
+<meta name="description" content="Consulte la TRM oficial del día y convierta entre dólares y pesos colombianos. Funciona sin internet y se instala en el celular.">
+<meta name="theme-color" content="#131E33">
+
+<!-- Open Graph -->
+<meta property="og:title" content="Conversor TRM — Dólar a peso colombiano">
+<meta property="og:description" content="La TRM oficial de la Superintendencia Financiera, con conversión inmediata y lista de valores. Se instala en el celular.">
+<meta property="og:image" content="https://SU-USUARIO.github.io/conversor-trm/og-image.png">
+<meta property="og:url" content="https://SU-USUARIO.github.io/conversor-trm/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Vibras Positivas HM">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Conversor TRM — Dólar a peso colombiano">
+<meta name="twitter:image" content="https://SU-USUARIO.github.io/conversor-trm/og-image.png">
+
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --papel:#EDF0F5;
+  --alto:#FFFFFF;
+  --tinta:#131E33;
+  --suave:#5A6880;
+  --peso:#0E7A4D;
+  --dolar:#A8621B;
+  --linea:#C6CEDB;
+  --alerta:#B3261E;
+  --display:"Bricolage Grotesque",system-ui,sans-serif;
+  --cuerpo:"Public Sans",system-ui,sans-serif;
+  --dato:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--papel);
+  color:var(--tinta);
+  font-family:var(--cuerpo);
+  font-size:16px;line-height:1.5;
+  padding:0 0 env(safe-area-inset-bottom);
+  -webkit-font-smoothing:antialiased;
+}
+.envoltura{max-width:560px;margin:0 auto;padding:20px 18px 48px}
+
+/* ---- encabezado ---- */
+.cabecera{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:22px}
+.marca{font-family:var(--display);font-weight:800;font-size:17px;letter-spacing:-.02em}
+.reloj{font-family:var(--dato);font-size:12px;color:var(--suave);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* ---- tarjeta de tasa ---- */
+.tasa{background:var(--alto);border:1px solid var(--linea);border-radius:4px;padding:22px 20px 0;position:relative;overflow:hidden}
+.tasa::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--dolar) 0 50%,var(--peso) 50% 100%)}
+.rotulo{font-family:var(--dato);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--suave)}
+.cifra{font-family:var(--dato);font-weight:600;font-size:clamp(44px,14vw,64px);letter-spacing:-.04em;line-height:1;margin:10px 0 4px;font-variant-numeric:tabular-nums}
+.cifra .dec{font-size:.5em;color:var(--suave);letter-spacing:-.02em}
+.cifra.cargando{color:var(--linea)}
+.unidad{font-size:13.5px;color:var(--suave);margin-bottom:18px}
+.unidad b{color:var(--tinta);font-weight:600}
+
+/* ---- cinta de vigencia: el elemento firma ---- */
+.cinta{display:flex;border-top:1px solid var(--linea);margin:0 -20px}
+.dia{flex:1;padding:11px 4px 12px;text-align:center;border-right:1px solid var(--linea);position:relative}
+.dia:last-child{border-right:0}
+.dia .nom{font-family:var(--dato);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--suave);display:block}
+.dia .num{font-family:var(--dato);font-size:17px;font-weight:500;font-variant-numeric:tabular-nums}
+.dia.hoy{background:var(--tinta)}
+.dia.hoy .nom{color:#9FB0CC}
+.dia.hoy .num{color:#fff}
+
+/* ---- estado ---- */
+.estado{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:10px 2px 26px;font-size:12px;color:var(--suave)}
+.estado .aviso{color:var(--alerta);font-weight:500}
+.enlace{background:none;border:0;padding:0;font:inherit;font-weight:600;color:var(--tinta);cursor:pointer;border-bottom:1.5px solid var(--linea)}
+.enlace:hover{border-color:var(--tinta)}
+
+/* ---- conversor ---- */
+.titulo{font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.02em;text-transform:uppercase;color:var(--suave);margin-bottom:10px}
+.par{display:grid;gap:1px;background:var(--linea);border:1px solid var(--linea);border-radius:4px;overflow:hidden}
+.campo{background:var(--alto);padding:14px 16px;display:flex;align-items:center;gap:12px}
+.campo .sig{font-family:var(--dato);font-size:12px;font-weight:600;letter-spacing:.08em;width:34px;flex:none}
+.campo.usd .sig{color:var(--dolar)}
+.campo.cop .sig{color:var(--peso)}
+.campo input{
+  flex:1;min-width:0;border:0;background:none;outline:none;text-align:right;
+  font-family:var(--dato);font-weight:500;font-size:24px;color:var(--tinta);
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em;
+}
+.campo input::placeholder{color:var(--linea)}
+.campo input:focus-visible{outline:2px solid var(--tinta);outline-offset:6px;border-radius:2px}
+
+/* ---- lista ---- */
+.bloque{margin-top:30px}
+.barra{display:flex;gap:8px;margin-bottom:12px}
+.btn{
+  font:inherit;font-size:13.5px;font-weight:600;padding:9px 14px;cursor:pointer;
+  background:var(--tinta);color:#fff;border:1px solid var(--tinta);border-radius:3px;
+}
+.btn:hover{background:#0A1426}
+.btn.secundario{background:none;color:var(--tinta);border-color:var(--linea)}
+.btn.secundario:hover{background:var(--alto);border-color:var(--tinta)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn:focus-visible{outline:2px solid var(--tinta);outline-offset:2px}
+
+table{width:100%;border-collapse:collapse;background:var(--alto);border:1px solid var(--linea);border-radius:4px}
+th{font-family:var(--dato);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--suave);font-weight:400;text-align:right;padding:9px 12px;border-bottom:1px solid var(--linea)}
+th:first-child{text-align:left;width:34px}
+td{font-family:var(--dato);font-size:14px;text-align:right;padding:9px 12px;border-bottom:1px solid var(--linea);font-variant-numeric:tabular-nums}
+td:first-child{text-align:left;color:var(--suave);font-size:12px}
+tr:last-child td{border-bottom:0}
+tfoot td{font-weight:600;font-size:15px;background:var(--papel);border-top:1px solid var(--tinta)}
+.quitar{background:none;border:0;color:var(--suave);cursor:pointer;font-size:16px;line-height:1;padding:0 2px}
+.quitar:hover{color:var(--alerta)}
+.vacio{background:var(--alto);border:1px dashed var(--linea);border-radius:4px;padding:22px 18px;text-align:center;color:var(--suave);font-size:13.5px}
+
+/* ---- pie ---- */
+.pie{margin-top:36px;padding-top:18px;border-top:1px solid var(--linea);font-size:11.5px;color:var(--suave);line-height:1.7}
+.pie b{color:var(--tinta);font-weight:600}
+.pie a{color:var(--suave)}
+
+@media (prefers-reduced-motion:no-preference){
+  .cifra{transition:color .2s}
+}
+</style>
+</head>
+<body>
+<div class="envoltura">
+
+  <header class="cabecera">
+    <div class="marca">Conversor TRM</div>
+    <div class="reloj" id="reloj">—</div>
+  </header>
+
+  <section class="tasa">
+    <div class="rotulo">TRM oficial · Superintendencia Financiera</div>
+    <div class="cifra cargando" id="cifra">····</div>
+    <div class="unidad">pesos colombianos por <b>1 dólar</b></div>
+    <div class="cinta" id="cinta"></div>
+  </section>
+
+  <div class="estado">
+    <span id="estado">Consultando la tasa del día…</span>
+    <button class="enlace" id="btnTasa">Editar tasa</button>
+  </div>
+
+  <section>
+    <div class="titulo">Convertir</div>
+    <div class="par">
+      <div class="campo usd">
+        <span class="sig">USD</span>
+        <input id="usd" inputmode="decimal" placeholder="0,00" aria-label="Valor en dólares">
+      </div>
+      <div class="campo cop">
+        <span class="sig">COP</span>
+        <input id="cop" inputmode="decimal" placeholder="0" aria-label="Valor en pesos colombianos">
+      </div>
+    </div>
+  </section>
+
+  <section class="bloque">
+    <div class="titulo">Lista de valores</div>
+    <div class="barra">
+      <button class="btn" id="btnAgregar">Agregar el valor de arriba</button>
+      <button class="btn secundario" id="btnCsv" disabled>Exportar CSV</button>
+    </div>
+    <div id="contenedorLista">
+      <div class="vacio">Escriba un valor arriba y agréguelo para ir sumando varios.</div>
+    </div>
+  </section>
+
+  <footer class="pie">
+    <p>Datos tomados del dataset <b>32sa-8pi3</b> de Datos Abiertos Colombia, publicado por la Superintendencia Financiera. La TRM es la tasa oficial exigida por la DIAN para conversiones contables.</p>
+    <p style="margin-top:10px"><b>Desarrollada por Vibras Positivas HM — Derechos de Autor Reservados</b><br>Caucasia, Antioquia · Colombia</p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var API = 'https://www.datos.gov.co/resource/32sa-8pi3.json?$limit=1';
+  var TASA_RESPALDO = 3128.65;
+  var DIAS = ['dom','lun','mar','mié','jue','vie','sáb'];
+
+  var tasa = null;         // tasa vigente en uso
+  var manual = false;      // true si el usuario la escribió a mano
+  var lista = [];          // valores en USD agregados
+
+  var $ = function(id){ return document.getElementById(id); };
+
+  var fmtCop = new Intl.NumberFormat('es-CO',{minimumFractionDigits:0,maximumFractionDigits:0});
+  var fmtUsd = new Intl.NumberFormat('es-CO',{minimumFractionDigits:2,maximumFractionDigits:2});
+  var fmtTasa = new Intl.NumberFormat('es-CO',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  function leerNumero(txt){
+    txt = String(txt).trim().replace(/\s/g,'');
+    if(!txt) return NaN;
+    if(txt.indexOf(',') > -1) txt = txt.replace(/\./g,'').replace(',','.');
+    txt = txt.replace(/[^0-9.]/g,'');
+    var n = parseFloat(txt);
+    return isFinite(n) ? n : NaN;
+  }
+
+  function hoyBogota(){
+    return new Intl.DateTimeFormat('en-CA',{timeZone:'America/Bogota'}).format(new Date());
+  }
+
+  function pintarReloj(){
+    var f = new Intl.DateTimeFormat('es-CO',{
+      timeZone:'America/Bogota', day:'2-digit', month:'short',
+      hour:'2-digit', minute:'2-digit', hour12:true
+    }).format(new Date());
+    $('reloj').textContent = f.replace('.','');
+  }
+
+  function pintarTasa(){
+    var partes = fmtTasa.format(tasa).split(',');
+    $('cifra').classList.remove('cargando');
+    $('cifra').innerHTML = partes[0] + '<span class="dec">,' + (partes[1]||'00') + '</span>';
+    recalcular();
+    dibujarLista();
+  }
+
+  function pintarCinta(desde, hasta){
+    var cinta = $('cinta');
+    cinta.innerHTML = '';
+    if(!desde || !hasta) return;
+    var d = new Date(desde + 'T12:00:00');
+    var f = new Date(hasta + 'T12:00:00');
+    var hoy = hoyBogota();
+    var tope = 0;
+    while(d <= f && tope < 8){
+      var iso = d.toISOString().slice(0,10);
+      var el = document.createElement('div');
+      el.className = 'dia' + (iso === hoy ? ' hoy' : '');
+      el.innerHTML = '<span class="nom">' + DIAS[d.getDay()] + '</span>' +
+                     '<span class="num">' + String(d.getDate()).padStart(2,'0') + '</span>';
+      cinta.appendChild(el);
+      d.setDate(d.getDate() + 1);
+      tope++;
+    }
+  }
+
+  function recalcular(origen){
+    var usd = $('usd'), cop = $('cop');
+    if(!tasa) return;
+    if(origen === 'cop'){
+      var vc = leerNumero(cop.value);
+      usd.value = isNaN(vc) ? '' : fmtUsd.format(vc / tasa);
+    } else {
+      var vu = leerNumero(usd.value);
+      cop.value = isNaN(vu) ? '' : fmtCop.format(vu * tasa);
+    }
+  }
+
+  function dibujarLista(){
+    var cont = $('contenedorLista');
+    $('btnCsv').disabled = lista.length === 0;
+    if(!lista.length){
+      cont.innerHTML = '<div class="vacio">Escriba un valor arriba y agréguelo para ir sumando varios.</div>';
+      return;
+    }
+    var filas = '', total = 0;
+    lista.forEach(function(v, i){
+      total += v;
+      filas += '<tr><td>' + (i+1) + '</td><td>' + fmtUsd.format(v) + '</td><td>' +
+               fmtCop.format(v * tasa) + '</td><td><button class="quitar" data-i="' + i +
+               '" aria-label="Quitar fila ' + (i+1) + '">&times;</button></td></tr>';
+    });
+    cont.innerHTML =
+      '<table><thead><tr><th>#</th><th>Dólares</th><th>Pesos</th><th></th></tr></thead>' +
+      '<tbody>' + filas + '</tbody>' +
+      '<tfoot><tr><td>Total</td><td>' + fmtUsd.format(total) + '</td><td>' +
+      fmtCop.format(total * tasa) + '</td><td></td></tr></tfoot></table>';
+
+    Array.prototype.forEach.call(cont.querySelectorAll('.quitar'), function(b){
+      b.addEventListener('click', function(){
+        lista.splice(parseInt(b.dataset.i,10), 1);
+        dibujarLista();
+      });
+    });
+  }
+
+  function exportarCsv(){
+    var filas = [['Item','Dolares USD','Pesos COP','TRM aplicada']];
+    lista.forEach(function(v,i){ filas.push([i+1, v.toFixed(2), Math.round(v*tasa), tasa]); });
+    var total = lista.reduce(function(a,b){ return a+b; }, 0);
+    filas.push(['TOTAL', total.toFixed(2), Math.round(total*tasa), '']);
+    var csv = filas.map(function(f){ return f.join(';'); }).join('\n');
+    var url = URL.createObjectURL(new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8'}));
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'conversion-trm-' + hoyBogota() + '.csv';
+    a.click();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function traerTasa(){
+    $('estado').textContent = 'Consultando la tasa del día…';
+    $('estado').classList.remove('aviso');
+    fetch(API, {cache:'no-store'})
+      .then(function(r){
+        if(!r.ok) throw new Error('respuesta ' + r.status);
+        return r.json();
+      })
+      .then(function(d){
+        var reg = d && d[0];
+        if(!reg || !reg.valor) throw new Error('sin datos');
+        if(!manual){ tasa = parseFloat(reg.valor); pintarTasa(); }
+        pintarCinta(reg.vigenciadesde.slice(0,10), reg.vigenciahasta.slice(0,10));
+        if(!manual) $('estado').textContent = 'Tasa oficial vigente. Toque el número para actualizar.';
+      })
+      .catch(function(){
+        if(!manual){
+          if(!tasa){ tasa = TASA_RESPALDO; pintarTasa(); }
+          $('estado').innerHTML = '<span class="aviso">Sin conexión.</span> Usando la última tasa conocida.';
+        }
+      });
+  }
+
+  function editarTasa(){
+    var actual = tasa ? fmtTasa.format(tasa) : '';
+    var r = window.prompt('Escriba la tasa que quiere aplicar (pesos por dólar):', actual);
+    if(r === null) return;
+    if(r.trim() === ''){
+      manual = false;
+      $('btnTasa').textContent = 'Editar tasa';
+      traerTasa();
+      return;
+    }
+    var n = leerNumero(r);
+    if(isNaN(n) || n <= 0){
+      $('estado').innerHTML = '<span class="aviso">Esa tasa no es válida.</span> Escriba solo números, por ejemplo 3128,65.';
+      return;
+    }
+    manual = true;
+    tasa = n;
+    pintarTasa();
+    $('estado').innerHTML = '<span class="aviso">Tasa manual.</span> Deje el campo vacío para volver a la oficial.';
+    $('btnTasa').textContent = 'Cambiar tasa';
+  }
+
+  // eventos
+  $('usd').addEventListener('input', function(){ recalcular('usd'); });
+  $('cop').addEventListener('input', function(){ recalcular('cop'); });
+  $('btnTasa').addEventListener('click', editarTasa);
+  $('cifra').addEventListener('click', function(){ if(!manual) traerTasa(); });
+  $('btnCsv').addEventListener('click', exportarCsv);
+  $('btnAgregar').addEventListener('click', function(){
+    var v = leerNumero($('usd').value);
+    if(isNaN(v) || v === 0){ $('usd').focus(); return; }
+    lista.push(v);
+    $('usd').value = '';
+    $('cop').value = '';
+    dibujarLista();
+    $('usd').focus();
+  });
+
+  // arranque
+  pintarReloj();
+  setInterval(pintarReloj, 30000);
+  traerTasa();
+
+  if('serviceWorker' in navigator && location.protocol === 'https:'){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  }
+})();
+</script>
+</body>
+</html>
